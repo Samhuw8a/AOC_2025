@@ -34,8 +34,10 @@ def part_2(lines: list[tuple]) -> int:
     count = 0
     for i in lines:
         dir, am = i
+
         if dir == "L":
             am = -am
+
         number, zeroes = count_mod(number, am, 100)
         count += zeroes
 
