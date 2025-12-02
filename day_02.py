@@ -29,7 +29,7 @@ def split_number(n: int, extend: bool) -> int:
 
 def construct_valid_ids(start: int, end: int) -> list:
     res: list = []
-    for i in range(start, end+149046150754):
+    for i in range(start, end+1):
         res.append(int(str(i)*2))
     return res
 
