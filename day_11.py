@@ -1,6 +1,6 @@
 from __future__ import annotations
 from utils.all import *
-from collections import deque
+from collections import deque, defaultdict
 
 rinput11 = read_input_line("test_11", sep="\n")
 rinput11 = read_input_line(11, sep="\n")
@@ -14,62 +14,53 @@ for name, connections in input11:
 G["out"] = []
 
 
-def part1() -> None:
-    queue: deque = deque([("you", set())])
-    count: int = 0
-
-    while queue:
-        current, visited = queue.popleft()
-
-        if (current == "out"):
-            # print(visited)
-            count += 1
-            continue
-
-        visited.add(current)
-        for neighbor in G[current]:
-            if neighbor not in visited:
-                queue.append((neighbor, visited))
-
-    print(count)
-
-
 def count_paths(start: str, target: str) -> int:
-    queue: deque = deque([(start, list())])
-    count: int = 0
 
-    while queue:
-        current, visited = queue.popleft()
+    # topological order (Kahn's algorithm)
+    indeg: defaultdict = defaultdict(int)
+    for u in G:
+        for v in G[u]:
+            indeg[v] += 1
 
-        if (current in visited):
-            continue
+    q = deque([n for n in G if indeg[n] == 0])
+    topo = []
+    while q:
+        u = q.popleft()
+        topo.append(u)
+        for v in G[u]:
+            indeg[v] -= 1
+            if indeg[v] == 0:
+                q.append(v)
 
-        visited = visited.copy()
-        visited.append(current)
+    paths_to: defaultdict = defaultdict(lambda: 0)
+    # paths_to: defaultdict = defaultdict(int)
+    paths_to[start] = 1
+    visited: set = set()
+    for u in topo:
+        for v in G[u]:
+            paths_to[v] += paths_to[u]
 
-        if (current == target):
-            count += 1
-            continue
+    return paths_to[target]
 
-        for neighbor in G[current]:
-            queue.append((neighbor, visited))
 
-    return count
+def part1() -> None:
+    print(f"part1: {count_paths("you", "out")}")
 
 
 def part2() -> None:
     total_paths: int = 0
     total_paths += (
-    count_paths("svr", "fft") *
-    count_paths("fft", "dac") *
-    count_paths("dac", "out")
+        count_paths("svr", "fft") *
+        count_paths("fft", "dac") *
+        count_paths("dac", "out")
     )
-    # total_paths: int = count_paths("dac", "fft")
-    print(total_paths)
+
+    print(f"part2: {total_paths}")
 
 
 def main() -> int:
     part1()
+    part2()
     return 0
 
 
